@@ -18,3 +18,4 @@ class Quest(Base):
     tasks = Column(JSON, default="{}", nullable=False)
     owner_id = Column(Integer, ForeignKey("manager.id"))
     owner = relationship("Manager", back_populates="quests")
+    requests = Column(JSON, default={}, nullable=False)

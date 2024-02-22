@@ -1,6 +1,8 @@
 from db.models.tasks import Task
+from db.models.users import Villager
 from schemas.tasks import taskCreate
 from sqlalchemy.orm import Session
+import json
 
 
 def create_new_task(task: taskCreate, db: Session, owner_id: int):
@@ -8,7 +10,17 @@ def create_new_task(task: taskCreate, db: Session, owner_id: int):
     db.add(task_object)
     db.commit()
     db.refresh(task_object)
+
+    villager = db.query(Villager).filter(Villager.id == owner_id).first()
+    villager_tasks_str = villager.tasks_created or "[]"
+    villager_tasks = json.loads(villager_tasks_str)
+    print(task_object.owner_id)
+    villager_tasks.append(task_object.id)
+    villager.tasks_created = json.dumps(villager_tasks)
+    db.commit()
+    db.refresh(task_object)
     return task_object
+
 
 
 def retreive_task(id: int, db: Session):

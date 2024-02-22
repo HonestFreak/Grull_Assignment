@@ -80,4 +80,4 @@ def get_current_user_from_token(
     elif role=="villager" :
         user = get_villager(username=username, db=db)
         
-    return user  # Return the username instead of the user object
+    return user 

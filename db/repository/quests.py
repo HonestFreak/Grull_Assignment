@@ -1,11 +1,21 @@
 from db.models.quests import Quest
 from schemas.quests import questCreate
 from sqlalchemy.orm import Session
+from db.models.users import Manager
+import json
 
-
-def create_new_quest(Quest: questCreate, db: Session, owner_id: int):
-    Quest_object = Quest(**Quest.dict(), owner_id=owner_id)
+def create_new_quest(quest: questCreate, db: Session, owner_id: int):
+    Quest_object = Quest(**quest.dict(), owner_id=owner_id)
     db.add(Quest_object)
+    db.commit()
+    db.refresh(Quest_object)
+    
+    # Update tasks_created field of Villager
+    manager = db.query(Manager).filter(Manager.id == owner_id).first()
+    manager_tasks_str = manager.quests_created or "[]"
+    manager_quests = json.loads(manager_tasks_str)
+    manager_quests.append(Quest_object.id)
+    manager.quests_created = json.dumps(manager_quests)
     db.commit()
     db.refresh(Quest_object)
     return Quest_object

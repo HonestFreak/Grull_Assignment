@@ -22,7 +22,7 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 
 
-@router.post("/create-task/", response_model=Showtask)
+@router.post("/create-task/")
 def create_task(
     task: taskCreate,
     db: Session = Depends(get_db),

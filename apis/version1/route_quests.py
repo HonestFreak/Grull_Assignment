@@ -22,7 +22,7 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 
 
-@router.post("/create-quest/", response_model=Showquest)
+@router.post("/create-quest/")
 def create_quest(
     quest: questCreate,
     db: Session = Depends(get_db),
