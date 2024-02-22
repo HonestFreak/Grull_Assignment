@@ -24,9 +24,7 @@ def start_application():
 app = start_application()
 
 origins = [
-    "http://localhost:5173/",  # Add your frontend origin here
-    "https://connectgpt-frontend.azurewebsites.net/",  # If deployed
-    "https://connectgpt.tech/",  # If deployed
+ # If deployed
 ]
 
 app.add_middleware(
