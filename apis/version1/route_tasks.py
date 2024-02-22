@@ -81,12 +81,3 @@ def delete_task(
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not permitted!!!!"
     )
-
-
-@router.get("/autocomplete")
-def autocomplete(term: Optional[str] = None, db: Session = Depends(get_db)):
-    tasks = search_task(term, db=db)
-    task_titles = []
-    for task in tasks:
-        task_titles.append(task.title)
-    return task_titles
