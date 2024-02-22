@@ -62,7 +62,6 @@ def create_user(user: UserCreate, role: str):
     global otp_list
     code = random.randint(100000, 999999)
     try:
-        # http://localhost:5173/verify?email=anshanandp@gmail.com&otp=929523
         link = URL + "/verify?email=" + (user.email) + '&otp=' + str(code) 
         BODY = "\r\n".join((
             "From: %s" % FROM_EMAIL,
@@ -74,8 +73,13 @@ def create_user(user: UserCreate, role: str):
             ))
         server = smtplib.SMTP(HOST, PORT)
         server.starttls()
-        server.login(FROM_EMAIL, "1@2@3@4@")
-        # server.sendmail(FROM_EMAIL, user.email, BODY )
+        server.login(FROM_EMAIL, "1@2@3@4@") 
+        # password is public for tetsing purpose as email is dummy mail. 
+        # import from env file in production. 
+        # emails will be sent to spam folder (using outlook) but 
+        # will be fine if we send from any other email provider
+
+        server.sendmail(FROM_EMAIL, user.email, BODY )
         server.quit()
         otp_list[user.email] = [code, user , role,
                                 datetime.datetime.now() + datetime.timedelta(hours=1)]
@@ -83,7 +87,7 @@ def create_user(user: UserCreate, role: str):
     except Exception as e:
         print(e)
         print("Error: error while sending mail")
-    return {"msg": otp_list}
+    return {"msg": "sent email to " + user.email}
 
 @router.get("/userinfo")
 def show_user(current_user: User = Depends(get_current_user_from_token), db: Session = Depends(get_db)):
