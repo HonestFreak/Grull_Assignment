@@ -17,6 +17,7 @@ import random
 import datetime
 from fastapi_utilities import repeat_every
 from chromadb.config import Settings
+import email.utils
 
 router = APIRouter()
 
@@ -62,10 +63,12 @@ def create_user(user: UserCreate, role: str):
     global otp_list
     code = random.randint(100000, 999999)
     try:
+        message_id = email.utils.make_msgid()
         link = URL + "/verify?email=" + (user.email) + '&otp=' + str(code) 
         BODY = "\r\n".join((
             "From: %s" % FROM_EMAIL,
             "To: %s" % user.email,
+            "Message-ID:" + message_id,
             "Subject: %s" % "test email from gpt" ,
             "",
             "Welcome to ConnectGPT!",
