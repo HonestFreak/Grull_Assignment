@@ -18,13 +18,15 @@ import datetime
 from fastapi_utilities import repeat_every
 from chromadb.config import Settings
 import email.utils
+import os
 
 router = APIRouter()
 
-HOST = "smtp-mail.outlook.com"
-PORT = 587
-FROM_EMAIL = "grull-assignment@outlook.com"
-URL = "https://connectgpt.tech"
+HOST = os.getenv("HOST")
+PORT = os.getenv("PORT")
+FROM_EMAIL = os.getenv("FROM_EMAIL")
+URL = os.getenv("URL")
+PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 otp_list = {}
 
@@ -38,8 +40,6 @@ async def clean_otp():
 @router.get("/verify/{email}/{code}")
 def verify(code: int, email: str, db: Session = Depends(get_db)):
     user = otp_list[email][1]
-    print(otp_list)
-    print(user)
     if code == otp_list[email][0] and datetime.datetime.now() < otp_list[email][3]:
         role = otp_list[email][2]
         if(role == "user"):
@@ -54,7 +54,7 @@ def verify(code: int, email: str, db: Session = Depends(get_db)):
         else:
             return {"msg": "invalid role"}
     else:
-        return {"msg": "failed"}
+        return {"msg": "failed to verify email"}
     
 
 @router.post("/signup_user")
@@ -64,24 +64,20 @@ def create_user(user: UserCreate, role: str):
     code = random.randint(100000, 999999)
     try:
         message_id = email.utils.make_msgid()
-        link = URL + "/verify?email=" + (user.email) + '&otp=' + str(code) 
+        link = URL + "/users/verify/" + user.email + "/" + str(code)
         BODY = "\r\n".join((
             "From: %s" % FROM_EMAIL,
             "To: %s" % user.email,
             "Message-ID:" + message_id,
-            "Subject: %s" % "test email from gpt" ,
+            "Subject: %s" % "Verification mail for GRULL" ,
             "",
-            "Welcome to ConnectGPT!",
+            "Welcome to Grull!",
+            "We are excited to have you on board. Please verify your email to continue. "
             "Follow the below link to verify : " + link,
             ))
         server = smtplib.SMTP(HOST, PORT)
         server.starttls()
-        server.login(FROM_EMAIL, "1@2@3@4@") 
-        # password is public for tetsing purpose as email is dummy mail. 
-        # import from env file in production. 
-        # emails will be sent to spam folder (using outlook) but 
-        # will be fine if we send from any other email provider
-
+        server.login(FROM_EMAIL, PASSWORD) 
         server.sendmail(FROM_EMAIL, user.email, BODY )
         server.quit()
         otp_list[user.email] = [code, user , role,
@@ -121,26 +117,3 @@ def feedback(feedback: str ,current_user: User = Depends(get_current_user_from_t
     else:
         print('An error occurred while updating the table.')
         print(response.text)
-
-# @router.get("/dashboard")
-# def feedback(current_user: User = Depends(get_current_user_from_token)):
-    # import chromadb
-    # import json
-    # # client = chromadb.PersistentClient(path="/path/to/persist/directory")
-    # client = chromadb.HttpClient(host="https://connectgpt-chroma.azurewebsites.net/api/v1",
-    #                              settings=Settings(chroma_client_auth_provider="chromadb.auth.token.TokenAuthClientProvider",
-    #                   chroma_client_auth_credentials="ansh"))
-    # totaltasks = len(list(current_user.tasks))
-    # totalchats = 0
-    # totalusers = 0
-    # totalindex = 0
-    # taskchart = [[],[]]
-    # for task in current_user.tasks:
-    #     taskchart[0].append(task.name)
-    #     taskchart[1].append(task.total_chat)
-    #     totalchats = totalchats + task.total_chat
-    #     sessions = json.loads(task.chat_history)
-    #     totalusers = totalusers + len(sessions)
-    #     collection = client.get_or_create_collection("col"+str(task.id))
-    #     totalindex = totalindex + collection.count() 
-    # return { "taskchart": taskchart ,"totaltasks":totaltasks, "totalchats":totalchats/2, "totalusers":totalusers, "totalindex":totalindex}
