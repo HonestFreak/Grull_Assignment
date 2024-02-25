@@ -1,7 +1,7 @@
 
 # 👨‍🌾Grull Netropolis
 
-RestAPI for the the Netroplis app defined for Grull assignment. Written in FastAPI (python). Implements all standard authentication and database practises. Makes use of ChromaDB (vector database) which will require containerization during deployment. Dockerfile is provided with the project too.
+RestAPI for the the Netroplis app defined for Grull assignment. Written in FastAPI (python). Implements all standard authentication and database practices. Makes use of ChromaDB (vector database) which will require containerization during deployment. Dockerfile is provided with the project too.
 
 
 
@@ -110,3 +110,4 @@ db/models
 ![alt text](screenshots/grull1.png) 
 ![alt text](screenshots/grull2.png) 
 ![alt text](screenshots/grull3.png)
+
