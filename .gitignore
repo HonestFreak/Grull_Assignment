@@ -1,0 +1,4 @@
+env/
+__pycache__/
+.github
+sql_app.db
